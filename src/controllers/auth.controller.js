@@ -31,7 +31,7 @@ const register = async (req, res) => {
     res.status(201).json({message: `User ${newUser.name} created successfully`})
 
   } catch (err) {
-    res.status(500).json({message: `Error connecting to server: ${err.message}`})
+    res.status(500).json({message: `Server error: ${err.message}`})
   }
   
 }
@@ -61,7 +61,7 @@ const login = async (req, res) => {
 
     return res.status(200).json({token: accessToken})
   } catch (err) {
-    res.status(500).json({message: `Error connecting to server: ${err.message}`})
+    res.status(500).json({message: `Server error: ${err.message}`})
   }
 }
 
@@ -94,7 +94,7 @@ const changePassword = async (req, res) => {
     return res.status(202).json({message: 'password changed'})
     
   } catch (err) {
-    res.status(500).json({message: `Error connecting to server: ${err.message}`})
+    res.status(500).json({message: `Server error: ${err.message}`})
   }
 }
 
