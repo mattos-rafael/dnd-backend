@@ -14,7 +14,7 @@ const createCharacter = async (req, res) => {
   try {
     const newCharacter = await Character.create(req.body)
 
-    res.status(201).json(newCharacter)
+    res.status(201).json(newCharacter.id)
   } catch (err) {
     res.status(500).json({message: err.message})
   }
