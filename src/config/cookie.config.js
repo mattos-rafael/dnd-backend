@@ -5,6 +5,5 @@ const accessTokenCookieOptions = {
   maxAge: 60 * 60 * 1000,
 };
 
-module.exports = {
-  accessTokenCookieOptions,
-};
+module.exports = accessTokenCookieOptions
+
