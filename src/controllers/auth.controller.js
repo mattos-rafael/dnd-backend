@@ -14,14 +14,14 @@ const register = async (req, res) => {
   }
 
   try {
-    const existingUser = User.findOne({where: {email}})
+    const existingUser = await User.findOne({where: {email}})
     if (existingUser) {
       return res.status(400).json({message: "Email already in use"})
     }
 
     const password_hash = await bcrypt.hash(password, 10)
 
-    const newUser = User.create({
+    const newUser = await User.create({
       name,
       email,
       password: password_hash,
@@ -43,10 +43,10 @@ const login = async (req, res) => {
   }
 
   try {
-    const user = User.findOne({where: {email}})
+    const user = await User.findOne({where: {email}})
 
     if (!user) {
-      return res.status(400).json({message: "Invalid email or password"})
+      return res.status(400).json({message: "Invalid email or password."})
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password)
@@ -57,20 +57,51 @@ const login = async (req, res) => {
 
     const accessToken = createAccessToken(user)
 
-    res.cookie("accessToken", accessTokenCookieConfig)
+    res.cookie("accessToken", accessToken)
 
-    return res.status(200).json(accessToken)
+    return res.status(200).json({token: accessToken})
   } catch (err) {
     res.status(500).json({message: `Error connecting to server: ${err.message}`})
   }
 }
 
 
-// try {
+const logout = ( req, res) => {
+  res.clearCookie("accessToken", accessTokenCookieConfig);
+  return res.status(200).json({message: "logged out"});
+};
 
-// } catch (err) {
-//   res.status(500).json({message: `Error connecting to server: ${err.message}`})
-// }
+const changePassword = async (req, res) => {
+  const email = req.user.email
+  const {oldPassword, password, password2} = req.body
+
+  try {
+    const user = await User.findOne({where: {email}})
+
+    const isValidPassword = await bcrypt.compare(oldPassword, user.password)
+    if (!isValidPassword) {
+      res.status(400).json({message: "password incorrect"})
+    }
+
+    if (password !== password2) {
+      res.status(400).json({message: "passwords dosen't match"})
+    }
+
+    const password_hash = await bcrypt.hash(password, 10)
+
+    await user.update({password: password_hash})
+
+    return res.status(202).json({message: 'password changed'})
+    
+  } catch (err) {
+    res.status(500).json({message: `Error connecting to server: ${err.message}`})
+  }
+}
+
 module.exports = {
   register,
+  login,
+  logout,
+  changePassword
+
 }

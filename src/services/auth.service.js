@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 
 const secret = process.env.ACCESS_TOKEN_SECRET
 
-const createAccesToken = (user) => {
+const createAccessToken = (user) => {
   return jwt.sign({
     id: user.id,
     name: user.name,
@@ -14,10 +14,11 @@ const createAccesToken = (user) => {
 }
 
 const verifyAccessToken = (token) => {
+  const secret = process.env.ACCESS_TOKEN_SECRET
   return jwt.verify(token, secret)
 }
 
 module.exports = {
-  createAccesToken,
+  createAccessToken,
   verifyAccessToken
 }
