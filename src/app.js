@@ -3,7 +3,7 @@ const express = require('express')
 const morgan =require('morgan')
 const cookieParser = require("cookie-parser")
 const cors = require('cors')
-
+console.log(process.env.NODE_ENV)
 const characterRoutes = require('./routes/character.routes')
 const authRoutes = require('./routes/auth.routes')
 const userRoutes = require('./routes/user.routes')

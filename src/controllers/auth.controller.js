@@ -57,7 +57,7 @@ const login = async (req, res) => {
 
     const accessToken = createAccessToken(user)
 
-    res.cookie("accessToken", accessToken)
+    res.cookie("accessToken", accessToken, accessTokenCookieConfig)
 
     return res.status(200).json({token: accessToken})
   } catch (err) {
