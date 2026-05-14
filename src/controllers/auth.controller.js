@@ -59,7 +59,14 @@ const login = async (req, res) => {
 
     res.cookie("accessToken", accessToken, accessTokenCookieConfig)
 
-    return res.status(200).json({token: accessToken})
+    return res.status(200).json({
+      message: "Login successfull",
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
+    })
   } catch (err) {
     res.status(500).json({message: `Server error: ${err.message}`})
   }
