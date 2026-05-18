@@ -1,0 +1,320 @@
+openapi: 3.0.0
+info:
+  title: DnD Character Creator API
+  description: API for creating and managing D&D characters
+  version: 1.0.0
+  contact:
+    name: Rafael Mattos
+  servers:
+    - url: https://dnd-backend-3a9o.onrender.com
+      description: Production server
+    - url: http://localhost:3000
+      description: Development server
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+  schemas:
+    Character:
+      type: object
+      properties:
+        name:
+          type: string
+          example: teste
+        race:
+          type: string
+          example: Dragonborn
+        sub_race:
+          type: string
+        class:
+          type: string
+          example: Bard
+        atributes:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              val:
+                type: integer
+        saving_throws:
+          type: array
+          items:
+            type: string
+        proficency:
+          type: integer
+        proficiencies:
+          type: array
+          items:
+            type: string
+        equipment:
+          type: array
+          items:
+            type: string
+        life:
+          type: integer
+        hit_die:
+          type: string
+        level:
+          type: integer
+        traits:
+          type: array
+          items:
+            type: string
+        lenguages:
+          type: array
+          items:
+            type: string
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: teste@gmail.com
+        password:
+          type: string
+          format: password
+          example: 123456
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - name
+        - password
+        - password2
+      properties:
+        email:
+          type: string
+          format: email
+          example: teste9@gmail.com
+        name:
+          type: string
+          example: teste
+        password:
+          type: string
+          format: password
+          example: 123456
+        password2:
+          type: string
+          format: password
+          example: 123456
+    ChangePasswordRequest:
+      type: object
+      required:
+        - oldPassword
+        - password
+        - password2
+      properties:
+        oldPassword:
+          type: string
+          format: password
+          example: 123456
+        password:
+          type: string
+          format: password
+          example: 12345
+        password2:
+          type: string
+          format: password
+          example: 12345
+    AddCharacterToUserRequest:
+      type: object
+      required:
+        - characterId
+      properties:
+        characterId:
+          type: string
+          example: 6a0aeddb3da204e9db5fc19c
+
+paths:
+  /api/character:
+    post:
+      summary: Create char on render
+      description: Creates a new character in the database
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Character'
+      responses:
+        '201':
+          description: Character created successfully
+        '400':
+          description: Invalid data
+        '500':
+          description: Server error
+    get:
+      summary: Get all characters
+      description: Retrieves all characters from the database
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Character'
+        '500':
+          description: Server error
+
+  /api/character/{id}:
+    delete:
+      summary: Delete character from db
+      description: Deletes a character by ID from the database
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Character ID
+      responses:
+        '200':
+          description: Character deleted successfully
+        '404':
+          description: Character not found
+        '500':
+          description: Server error
+
+  /api/auth/login:
+    post:
+      summary: Login render
+      description: Authenticates a user and creates a session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Invalid credentials
+        '500':
+          description: Server error
+
+  /api/auth/register:
+    post:
+      summary: Register render
+      description: Registers a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: User already exists or passwords don't match
+        '500':
+          description: Server error
+
+  /api/auth/logout:
+    post:
+      summary: Logout render
+      description: Logs out the current user
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Logout successful
+        '500':
+          description: Server error
+
+  /api/auth/changePassword:
+    put:
+      summary: Change password render
+      description: Changes the user's password
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password changed successfully
+        '400':
+          description: Invalid old password or passwords don't match
+        '401':
+          description: Not authenticated
+        '500':
+          description: Server error
+
+  /api/user:
+    get:
+      summary: Get user character
+      description: Retrieves all characters for the authenticated user
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of user's characters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Character'
+        '401':
+          description: Not authenticated
+        '500':
+          description: Server error
+    post:
+      summary: Add character to user
+      description: Adds an existing character to the authenticated user
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCharacterToUserRequest'
+      responses:
+        '200':
+          description: Character added to user successfully
+        '401':
+          description: Not authenticated
+        '404':
+          description: Character not found
+        '500':
+          description: Server error
+
+  /api/user/{id}:
+    delete:
+      summary: Delete character from user
+      description: Removes a character from the authenticated user
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Character ID
+      responses:
+        '200':
+          description: Character removed from user successfully
+        '401':
+          description: Not authenticated
+        '404':
+          description: Character not found
+        '500':
+          description: Server error
